@@ -148,14 +148,17 @@ export const AdminDashboard = () => {
     return <AdminLogin />;
   }
 
-  // Stats (Requirement #12)
-  const totalPrompts = prompts.length;
-  const totalViews = prompts.reduce((acc, curr) => acc + (curr.views || 0), 0);
-  const totalCopies = prompts.reduce((acc, curr) => acc + (curr.copies || 0), 0);
-  const totalDownloads = prompts.reduce((acc, curr) => acc + (curr.downloads || 0), 0);
+  // Stats & Safe Array Handlers
+  const safePrompts = Array.isArray(prompts) ? prompts : [];
+  const safeCategories = Array.isArray(categories) ? categories : [];
 
-  const topViewed = [...prompts].sort((a, b) => b.views - a.views).slice(0, 5);
-  const latestPublished = [...prompts].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5);
+  const totalPrompts = safePrompts.length;
+  const totalViews = safePrompts.reduce((acc, curr) => acc + (curr.views || 0), 0);
+  const totalCopies = safePrompts.reduce((acc, curr) => acc + (curr.copies || 0), 0);
+  const totalDownloads = safePrompts.reduce((acc, curr) => acc + (curr.downloads || 0), 0);
+
+  const topViewed = [...safePrompts].sort((a, b) => (b.views || 0) - (a.views || 0)).slice(0, 5);
+  const latestPublished = [...safePrompts].sort((a, b) => new Date(b.createdAt || Date.now()) - new Date(a.createdAt || Date.now())).slice(0, 5);
 
   const handleFormSubmit = (e, status = 'منشور') => {
     if (e) e.preventDefault();
@@ -252,7 +255,7 @@ export const AdminDashboard = () => {
       {/* Mobile Tab Navigation Bar (Requirement #14) */}
       <div className="mobile-admin-tabs" style={{ display: 'none', gap: '6px', overflowX: 'auto', paddingBottom: '10px', marginBottom: '1.5rem' }}>
         <button onClick={() => setActiveTab('overview')} className={`category-chip ${activeTab === 'overview' ? 'active' : ''}`}>الرئيسية</button>
-        <button onClick={() => setActiveTab('prompts_list')} className={`category-chip ${activeTab === 'prompts_list' ? 'active' : ''}`}>البرومبتات ({prompts.length})</button>
+        <button onClick={() => setActiveTab('prompts_list')} className={`category-chip ${activeTab === 'prompts_list' ? 'active' : ''}`}>البرومبتات ({safePrompts.length})</button>
         <button onClick={() => { setEditingPrompt(null); setActiveTab('add_prompt'); }} className={`category-chip ${activeTab === 'add_prompt' ? 'active' : ''}`}>إضافة برومبت</button>
         <button onClick={() => setActiveTab('categories')} className={`category-chip ${activeTab === 'categories' ? 'active' : ''}`}>التصنيفات</button>
         <button onClick={() => setActiveTab('analytics')} className={`category-chip ${activeTab === 'analytics' ? 'active' : ''}`}>الإحصائيات</button>
@@ -287,7 +290,7 @@ export const AdminDashboard = () => {
               className={`sidebar-nav-btn ${activeTab === 'prompts_list' ? 'active' : ''}`}
             >
               <FileText size={18} />
-              إدارة البرومبتات ({prompts.length})
+              إدارة البرومبتات ({safePrompts.length})
             </button>
 
             <button
@@ -437,7 +440,7 @@ export const AdminDashboard = () => {
           {activeTab === 'prompts_list' && (
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-xl)', padding: '1.25rem', overflowX: 'auto' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
-                <h3 style={{ fontSize: '1.15rem', fontWeight: 700 }}>إدارة البرومبتات ({prompts.length})</h3>
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 700 }}>إدارة البرومبتات ({safePrompts.length})</h3>
                 <button
                   onClick={() => {
                     setEditingPrompt(null);
@@ -469,7 +472,7 @@ export const AdminDashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {prompts.map((p) => (
+                  {safePrompts.map((p) => (
                     <tr key={p.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
                       <td style={{ padding: '12px 10px', fontWeight: 700, color: 'var(--text-primary)', maxWidth: '200px' }}>
                         {p.title}
@@ -831,7 +834,7 @@ export const AdminDashboard = () => {
               <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-xl)', padding: '1.25rem' }}>
                 <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '1rem' }}>التصنيفات الحالية</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))', gap: '0.75rem' }}>
-                  {categories.filter(c => c.id !== 'all').map((cat) => (
+                  {safeCategories.filter(c => c.id !== 'all').map((cat) => (
                     <div key={cat.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 12px', background: 'var(--bg-main)', border: '1px solid var(--border-color)', borderRadius: '10px' }}>
                       <span style={{ fontWeight: 700, fontSize: '0.88rem' }}>{cat.name}</span>
                       <button onClick={() => deleteCategory(cat.id)} style={{ background: 'none', border: 'none', color: '#EF4444', cursor: 'pointer' }}>
