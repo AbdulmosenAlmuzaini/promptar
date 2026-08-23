@@ -6,7 +6,7 @@ import * as schema from './schema.js';
 import { INITIAL_PROMPTS, INITIAL_CATEGORIES } from '../data/initialData.js';
 
 async function seed() {
-  const connectionString = process.env.DATABASE_URL;
+  const connectionString = process.env.DATABASE_URL || process.env.POSTGRES_URL || process.env.POSTGRES_URL_NON_POOLING;
   if (!connectionString) {
     console.error('❌ Error: DATABASE_URL environment variable is missing.');
     process.exit(1);
