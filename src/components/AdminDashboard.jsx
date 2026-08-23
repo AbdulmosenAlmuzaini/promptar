@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp, generateShareText } from '../context/AppContext';
 import { AdminLogin } from './AdminLogin';
 import {
@@ -27,6 +27,7 @@ import { TelegramIcon, WhatsAppIcon, XIcon } from './SocialIcons';
 
 export const AdminDashboard = () => {
   const {
+    loading,
     siteSettings,
     setSiteSettings,
     isAdminAuthenticated,
@@ -47,18 +48,15 @@ export const AdminDashboard = () => {
     addCategory,
     deleteCategory,
     navigate,
-    showToast
+    showToast,
+    uploadFileToStorage
   } = useApp();
 
+  // All Hooks MUST be declared at top level before any conditional returns
   const [activeTab, setActiveTab] = useState(adminTab || 'overview');
   const [copiedSuccessLink, setCopiedSuccessLink] = useState(false);
 
-  // If not authenticated, render AdminLogin component (Requirement #17)
-  if (!isAdminAuthenticated) {
-    return <AdminLogin />;
-  }
-
-  // Streamlined Form State for Add / Edit (Requirement #9)
+  // Streamlined Form State for Add / Edit
   const [formData, setFormData] = useState({
     title: editingPrompt ? editingPrompt.title : '',
     slug: editingPrompt ? editingPrompt.slug : '',
@@ -75,18 +73,80 @@ export const AdminDashboard = () => {
     status: editingPrompt ? editingPrompt.status : 'منشور'
   });
 
-  // Settings form state (Requirement #18)
+  // Settings form state
   const [settingsData, setSettingsData] = useState({
-    siteName: siteSettings.siteName || 'مكتبة البرومبتات',
-    siteSubtitle: siteSettings.siteSubtitle || 'منصة البرومبتات العربية المتخصصة',
-    telegramChannelUrl: siteSettings.telegramChannelUrl || 'https://t.me/PromptArabic',
-    twitterUrl: siteSettings.twitterUrl || 'https://x.com',
-    whatsappUrl: siteSettings.whatsappUrl || 'https://wa.me',
-    metaDescription: siteSettings.metaDescription || ''
+    siteName: siteSettings?.siteName || 'مكتبة البرومبتات',
+    siteSubtitle: siteSettings?.siteSubtitle || 'منصة البرومبتات العربية المتخصصة',
+    telegramChannelUrl: siteSettings?.telegramChannelUrl || 'https://t.me/PromptArabic',
+    twitterUrl: siteSettings?.twitterUrl || 'https://x.com',
+    whatsappUrl: siteSettings?.whatsappUrl || 'https://wa.me',
+    metaDescription: siteSettings?.metaDescription || ''
   });
 
   // Category Form State
   const [newCatName, setNewCatName] = useState('');
+
+  // Sync settings state when siteSettings changes
+  useEffect(() => {
+    if (siteSettings) {
+      setSettingsData({
+        siteName: siteSettings.siteName || 'مكتبة البرومبتات',
+        siteSubtitle: siteSettings.siteSubtitle || 'منصة البرومبتات العربية المتخصصة',
+        telegramChannelUrl: siteSettings.telegramChannelUrl || 'https://t.me/PromptArabic',
+        twitterUrl: siteSettings.twitterUrl || 'https://x.com',
+        whatsappUrl: siteSettings.whatsappUrl || 'https://wa.me',
+        metaDescription: siteSettings.metaDescription || ''
+      });
+    }
+  }, [siteSettings]);
+
+  // Sync activeTab when adminTab prop changes
+  useEffect(() => {
+    if (adminTab) setActiveTab(adminTab);
+  }, [adminTab]);
+
+  // Conditional Returns AFTER all Hooks have executed
+  if (loading) {
+    return (
+      <div
+        className="container animate-fade-in"
+        style={{
+          padding: '6rem 1.25rem',
+          textAlign: 'center',
+          minHeight: '60vh',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}
+      >
+        <div
+          style={{
+            width: '40px',
+            height: '40px',
+            border: '3px solid var(--border-color)',
+            borderTopColor: 'var(--accent-purple)',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            marginBottom: '1rem'
+          }}
+        />
+        <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
+          جاري التحقق من الجلسة وتحميل البيانات...
+        </p>
+        <style>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    );
+  }
+
+  if (!isAdminAuthenticated) {
+    return <AdminLogin />;
+  }
 
   // Stats (Requirement #12)
   const totalPrompts = prompts.length;
