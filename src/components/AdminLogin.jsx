@@ -2,134 +2,215 @@
 
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { Lock, Mail, ArrowLeft, ShieldCheck, Sparkles } from 'lucide-react';
+import { KeyRound, ArrowRight, Shield, PhoneCall } from 'lucide-react';
 
 export const AdminLogin = () => {
-  const { siteSettings, loginAdmin, navigate } = useApp();
-  const [email, setEmail] = useState('admin@prompt.local');
-  const [password, setPassword] = useState('Admin123');
+  const { loginAdmin, navigate } = useApp();
+  const [password, setPassword] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    loginAdmin(email, password);
-  };
-
-  const handleQuickDemoLogin = () => {
-    setEmail('admin@prompt.local');
-    setPassword('Admin123');
-    loginAdmin('admin@prompt.local', 'Admin123');
+    if (!password) return;
+    setIsSubmitting(true);
+    await loginAdmin('admin@prompt.local', password);
+    setIsSubmitting(false);
   };
 
   return (
     <div
       className="animate-fade-in"
       style={{
-        minHeight: '80vh',
+        minHeight: '82vh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '2rem 1.25rem'
+        padding: '2.5rem 1.25rem'
       }}
     >
       <div
         style={{
           background: 'var(--bg-card)',
           border: '1px solid var(--border-color)',
-          borderRadius: 'var(--radius-xl)',
-          padding: '2.5rem 2rem',
-          maxWidth: '440px',
+          borderRadius: '24px',
+          padding: '3rem 2.25rem 2.25rem',
+          maxWidth: '420px',
           width: '100%',
-          boxShadow: 'var(--shadow-card), var(--shadow-glow)'
+          boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4), 0 0 40px rgba(139, 92, 246, 0.08)',
+          backdropFilter: 'blur(16px)'
         }}
       >
-        {/* Top Header */}
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+        {/* Top Header & Icon */}
+        <div style={{ textAlign: 'center', marginBottom: '2.25rem' }}>
           <div
             style={{
-              width: '54px',
-              height: '54px',
-              borderRadius: '16px',
-              background: 'rgba(139, 92, 246, 0.15)',
+              width: '60px',
+              height: '60px',
+              borderRadius: '20px',
+              background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(59, 130, 246, 0.1))',
+              border: '1px solid rgba(139, 92, 246, 0.3)',
               color: 'var(--accent-purple)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              margin: '0 auto 1rem'
+              margin: '0 auto 1.25rem',
+              boxShadow: '0 8px 20px rgba(139, 92, 246, 0.15)'
             }}
           >
-            <ShieldCheck size={28} />
+            <Shield size={30} />
           </div>
 
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.4rem' }}>
+          <h1
+            style={{
+              fontSize: '1.65rem',
+              fontWeight: 800,
+              color: 'var(--text-primary)',
+              marginBottom: '0.5rem',
+              letterSpacing: '-0.02em'
+            }}
+          >
             لوحة تحكم المنصة
           </h1>
 
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem' }}>
-            أدخل بيانات الاعتماد للوصول إلى منطقة إدارة المحتوى
+          <p
+            style={{
+              color: 'var(--text-secondary)',
+              fontSize: '0.9rem',
+              lineHeight: 1.6,
+              maxWidth: '320px',
+              margin: '0 auto'
+            }}
+          >
+            أدخل رمز الدخول للوصول إلى منطقة الإدارة والتحكم بالمحتوى.
           </p>
         </div>
 
-        {/* Form */}
+        {/* Single Password Input Form */}
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           <div>
-            <label className="form-label" style={{ fontSize: '0.85rem' }}>البريد الإلكتروني</label>
-            <div style={{ position: 'relative' }}>
-              <input
-                type="email"
-                className="form-input"
-                style={{ paddingRight: '38px', direction: 'ltr', textAlign: 'right' }}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-              <Mail size={16} color="var(--text-muted)" style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)' }} />
-            </div>
-          </div>
-
-          <div>
-            <label className="form-label" style={{ fontSize: '0.85rem' }}>كلمة المرور</label>
+            <label
+              className="form-label"
+              style={{
+                fontSize: '0.88rem',
+                fontWeight: 700,
+                color: 'var(--text-primary)',
+                marginBottom: '0.5rem',
+                display: 'block'
+              }}
+            >
+              رمز الدخول
+            </label>
             <div style={{ position: 'relative' }}>
               <input
                 type="password"
                 className="form-input"
-                style={{ paddingRight: '38px', direction: 'ltr', textAlign: 'right' }}
+                style={{
+                  paddingRight: '42px',
+                  height: '48px',
+                  borderRadius: '14px',
+                  fontSize: '0.95rem',
+                  border: '1px solid var(--border-color)',
+                  background: 'var(--bg-main)',
+                  color: 'var(--text-primary)'
+                }}
+                placeholder="أدخل رمز الدخول"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                autoFocus
               />
-              <Lock size={16} color="var(--text-muted)" style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+              <KeyRound
+                size={18}
+                color="var(--text-muted)"
+                style={{
+                  position: 'absolute',
+                  right: '14px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  pointerEvents: 'none'
+                }}
+              />
             </div>
           </div>
 
-          <button type="submit" className="btn-primary" style={{ width: '100%', padding: '11px 20px', marginTop: '0.5rem' }}>
-            تسجيل الدخول
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="btn-primary"
+            style={{
+              width: '100%',
+              height: '48px',
+              borderRadius: '14px',
+              fontSize: '0.95rem',
+              fontWeight: 700,
+              marginTop: '0.5rem',
+              cursor: isSubmitting ? 'wait' : 'pointer'
+            }}
+          >
+            {isSubmitting ? 'جاري التحقق...' : 'دخول إلى لوحة التحكم'}
           </button>
         </form>
 
-        {/* Quick Demo Login Preset Button */}
-        <div style={{ borderTop: '1px solid var(--border-color)', marginTop: '1.5rem', paddingTop: '1.25rem', textAlign: 'center' }}>
-          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.75rem' }}>
-            بيانات الدخول التجريبية للعرض: <code style={{ color: 'var(--accent-purple)' }}>admin@prompt.local</code> / <code style={{ color: 'var(--accent-purple)' }}>Admin123</code>
-          </div>
-
+        {/* Back to main site link */}
+        <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
           <button
-            onClick={handleQuickDemoLogin}
-            className="btn-secondary"
-            style={{ width: '100%', fontSize: '0.88rem', padding: '9px 16px' }}
+            onClick={() => navigate('home')}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'var(--text-secondary)',
+              fontSize: '0.88rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              transition: 'color 0.2s ease'
+            }}
+            onMouseOver={(e) => (e.currentTarget.style.color = 'var(--accent-purple)')}
+            onMouseOut={(e) => (e.currentTarget.style.color = 'var(--text-secondary)')}
           >
-            <Sparkles size={16} color="var(--accent-purple)" />
-            دخول سريع بنقرة واحدة (تجريبي)
+            <ArrowRight size={16} />
+            العودة إلى الموقع الرئيسي
           </button>
         </div>
 
-        {/* Back to Home */}
-        <div style={{ textAlign: 'center', marginTop: '1.25rem' }}>
-          <button
-            onClick={() => navigate('home')}
-            style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '0.85rem', cursor: 'pointer', fontFamily: 'inherit' }}
+        {/* Bottom Support & Contact Section */}
+        <div
+          style={{
+            borderTop: '1px solid var(--border-color)',
+            marginTop: '2rem',
+            paddingTop: '1.25rem',
+            textAlign: 'center'
+          }}
+        >
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              color: 'var(--text-muted)',
+              fontSize: '0.85rem'
+            }}
           >
-            العودة للموقع الرئيسي
-          </button>
+            <PhoneCall size={14} color="var(--accent-purple)" />
+            <span>للدعم والاستفسار:</span>
+            <a
+              href="https://wa.me/966500000000"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                color: 'var(--text-primary)',
+                fontWeight: 700,
+                direction: 'ltr',
+                unicodeBidi: 'embed',
+                textDecoration: 'none'
+              }}
+            >
+              +966 50 000 0000
+            </a>
+          </div>
         </div>
 
       </div>
