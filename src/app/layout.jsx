@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import '../index.css';
 import { AppProvider } from '../context/AppContext';
 import { Header } from '../components/Header';
@@ -36,7 +37,9 @@ export default function RootLayout({ children }) {
       <body>
         <AppProvider>
           <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-            <Header />
+            <Suspense fallback={<header className="glass-nav" style={{ height: '72px' }} />}>
+              <Header />
+            </Suspense>
             <main style={{ flex: 1 }}>{children}</main>
             <Footer />
             <ToastContainer />

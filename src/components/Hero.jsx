@@ -1,6 +1,8 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useApp } from '../context/AppContext';
 import { Search, Sparkles, ArrowLeft, Flame } from 'lucide-react';
 
@@ -11,9 +13,10 @@ export const Hero = () => {
     selectedCategory,
     setSelectedCategory,
     selectedModel,
-    setSelectedModel,
-    navigate
+    setSelectedModel
   } = useApp();
+
+  const router = useRouter();
 
   const handleChipClick = (item) => {
     if (['ChatGPT', 'Claude', 'Gemini', 'Grok', 'DeepSeek'].includes(item)) {
@@ -42,7 +45,16 @@ export const Hero = () => {
   const handleScrollToLatest = () => {
     const el = document.getElementById('latest-prompts');
     if (el) el.scrollIntoView({ behavior: 'smooth' });
-    else navigate('prompts');
+    else router.push('/prompts');
+  };
+
+  const handleSearchSubmit = (e) => {
+    if (e) e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/prompts?q=${encodeURIComponent(searchQuery.trim())}`);
+    } else {
+      router.push('/prompts');
+    }
   };
 
   return (
@@ -80,7 +92,7 @@ export const Hero = () => {
           المرجع الأول والمركزية للبرومبتات العربية
         </div>
 
-        {/* Main Title (Requirement #2) */}
+        {/* Main Title */}
         <h1
           style={{
             fontSize: 'clamp(2.2rem, 5vw, 3.5rem)',
@@ -94,7 +106,7 @@ export const Hero = () => {
           كل البرومبتات التي تحتاجها… <span style={{ background: 'linear-gradient(135deg, #8B5CF6 0%, #06B6D4 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>في مكان واحد</span>
         </h1>
 
-        {/* Subtitle (Requirement #2) */}
+        {/* Subtitle */}
         <p
           style={{
             fontSize: 'clamp(1.02rem, 2vw, 1.2rem)',
@@ -107,12 +119,12 @@ export const Hero = () => {
           مكتبة عربية متجددة تضم برومبتات جاهزة للذكاء الاصطناعي، مرتبة حسب المجال والأداة، مع إمكانية النسخ والتحميل والمشاركة بسهولة.
         </p>
 
-        {/* Action Buttons (Requirement #2) */}
+        {/* Action Buttons */}
         <div style={{ display: 'flex', gap: '14px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '2.5rem' }}>
-          <button onClick={() => navigate('prompts')} className="btn-primary" style={{ padding: '12px 28px', fontSize: '1rem' }}>
+          <Link href="/prompts" className="btn-primary" style={{ padding: '12px 28px', fontSize: '1rem', textDecoration: 'none' }}>
             استكشف البرومبتات
             <ArrowLeft size={18} />
-          </button>
+          </Link>
           
           <button onClick={handleScrollToLatest} className="btn-secondary" style={{ padding: '12px 24px', fontSize: '1rem' }}>
             <Flame size={18} color="#F59E0B" />
@@ -121,7 +133,8 @@ export const Hero = () => {
         </div>
 
         {/* Big Central Search Bar */}
-        <div
+        <form
+          onSubmit={handleSearchSubmit}
           style={{
             maxWidth: '700px',
             margin: '0 auto 2rem',
@@ -145,9 +158,6 @@ export const Hero = () => {
               placeholder="ابحث عن برومبت... (مثال: برومبت المعلمين، تسويق، بايثون)"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') navigate('prompts');
-              }}
               style={{
                 flex: 1,
                 background: 'transparent',
@@ -160,14 +170,14 @@ export const Hero = () => {
               }}
             />
             <button
-              onClick={() => navigate('prompts')}
+              type="submit"
               className="btn-primary"
               style={{ borderRadius: 'var(--radius-lg)', padding: '12px 24px', fontSize: '0.95rem' }}
             >
               بحث
             </button>
           </div>
-        </div>
+        </form>
 
         {/* Categories Chips Row */}
         <div

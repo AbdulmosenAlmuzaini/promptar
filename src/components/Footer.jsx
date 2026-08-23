@@ -1,12 +1,13 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { useApp } from '../context/AppContext';
 import { Sparkles, Heart } from 'lucide-react';
 import { TelegramIcon, XIcon, WhatsAppIcon } from './SocialIcons';
 
 export const Footer = () => {
-  const { siteSettings, navigate } = useApp();
+  const { siteSettings } = useApp();
 
   return (
     <footer
@@ -28,14 +29,15 @@ export const Footer = () => {
         >
           {/* Brand Col */}
           <div>
-            <div
-              onClick={() => navigate('home')}
+            <Link
+              href="/"
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '10px',
                 cursor: 'pointer',
-                marginBottom: '1.2rem'
+                marginBottom: '1.2rem',
+                textDecoration: 'none'
               }}
             >
               <div
@@ -54,7 +56,7 @@ export const Footer = () => {
               <div style={{ fontWeight: 800, fontSize: '1.2rem', color: 'var(--text-primary)' }}>
                 {siteSettings.siteName}
               </div>
-            </div>
+            </Link>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.7 }}>
               {siteSettings.metaDescription}
             </p>
@@ -67,13 +69,13 @@ export const Footer = () => {
             </h4>
             <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <li>
-                <button onClick={() => navigate('home')} className="footer-link">الرئيسية</button>
+                <Link href="/" className="footer-link">الرئيسية</Link>
               </li>
               <li>
-                <button onClick={() => navigate('prompts')} className="footer-link">مكتبة البرومبتات</button>
+                <Link href="/prompts" className="footer-link">مكتبة البرومبتات</Link>
               </li>
               <li>
-                <button onClick={() => navigate('categories')} className="footer-link">تصنيفات البرومبتات</button>
+                <Link href="/categories" className="footer-link">تصنيفات البرومبتات</Link>
               </li>
             </ul>
           </div>
@@ -155,6 +157,8 @@ export const Footer = () => {
           transition: color 0.2s ease;
           padding: 0;
           text-align: right;
+          text-decoration: none;
+          display: inline-block;
         }
         .footer-link:hover {
           color: var(--accent-purple);

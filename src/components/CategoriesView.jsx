@@ -1,6 +1,8 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useApp } from '../context/AppContext';
 import {
   Sparkles,
@@ -20,7 +22,8 @@ import {
 } from 'lucide-react';
 
 export const CategoriesView = () => {
-  const { categories, prompts, setSelectedCategory, navigate } = useApp();
+  const { categories, prompts, setSelectedCategory } = useApp();
+  const router = useRouter();
 
   const getCategoryIcon = (name) => {
     switch (name) {
@@ -42,7 +45,7 @@ export const CategoriesView = () => {
 
   const handleSelectCat = (name) => {
     setSelectedCategory(name);
-    navigate('prompts');
+    router.push(`/prompts?category=${encodeURIComponent(name)}`);
   };
 
   return (
@@ -63,10 +66,10 @@ export const CategoriesView = () => {
           gap: '1.5rem'
         }}
       >
-        {categories
+        {(categories || [])
           .filter((c) => c.id !== 'all')
           .map((cat) => {
-            const count = prompts.filter(
+            const count = (prompts || []).filter(
               (p) =>
                 p.category === cat.name ||
                 p.model === cat.name ||

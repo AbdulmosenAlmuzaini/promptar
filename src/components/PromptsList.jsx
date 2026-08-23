@@ -1,6 +1,7 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useApp } from '../context/AppContext';
 import { PromptCard } from './PromptCard';
 import { Search, Filter, ArrowUpDown, Sparkles, X } from 'lucide-react';
@@ -19,10 +20,28 @@ export const PromptsList = () => {
     setSortBy
   } = useApp();
 
+  const searchParams = useSearchParams();
+  const qParam = searchParams.get('q');
+  const sortParam = searchParams.get('sort');
+  const categoryParam = searchParams.get('category');
+
+  // Sync URL search parameters on mount / change
+  useEffect(() => {
+    if (qParam !== null) {
+      setSearchQuery(qParam);
+    }
+    if (sortParam !== null) {
+      setSortBy(sortParam);
+    }
+    if (categoryParam !== null) {
+      setSelectedCategory(categoryParam);
+    }
+  }, [qParam, sortParam, categoryParam, setSearchQuery, setSortBy, setSelectedCategory]);
+
   const models = ['الكل', 'ChatGPT', 'Claude', 'Gemini', 'Grok', 'DeepSeek', 'عام'];
 
   // Filter logic
-  const filteredPrompts = prompts.filter((p) => {
+  const filteredPrompts = (prompts || []).filter((p) => {
     // Search query match
     const matchesSearch =
       !searchQuery.trim() ||
@@ -47,8 +66,8 @@ export const PromptsList = () => {
   // Sort logic
   const sortedPrompts = [...filteredPrompts].sort((a, b) => {
     if (sortBy === 'newest') return new Date(b.createdAt) - new Date(a.createdAt);
-    if (sortBy === 'views') return b.views - a.views;
-    if (sortBy === 'copies') return b.copies - a.copies;
+    if (sortBy === 'views') return (b.views || 0) - (a.views || 0);
+    if (sortBy === 'copies') return (b.copies || 0) - (a.copies || 0);
     if (sortBy === 'downloads') return (b.downloads || 0) - (a.downloads || 0);
     return 0;
   });
@@ -130,7 +149,7 @@ export const PromptsList = () => {
               }}
             >
               <option value="all">كافة التصنيفات</option>
-              {categories
+              {(categories || [])
                 .filter((c) => c.id !== 'all')
                 .map((cat) => (
                   <option key={cat.id} value={cat.name}>

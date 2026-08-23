@@ -1,22 +1,56 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useApp } from '../context/AppContext';
 import { Sparkles, Sun, Moon, Search, Menu, X, Flame } from 'lucide-react';
 
 export const Header = () => {
-  const { siteSettings, theme, toggleTheme, currentPage, navigate, searchQuery, setSearchQuery, setSortBy } = useApp();
+  const { siteSettings, theme, toggleTheme, searchQuery, setSearchQuery } = useApp();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
+  const [localSearch, setLocalSearch] = useState(searchQuery || '');
 
-  const handleNav = (page, params = {}) => {
-    navigate(page, params);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const sortParam = searchParams.get('sort');
+  const qParam = searchParams.get('q');
+
+  useEffect(() => {
+    if (qParam !== null) {
+      setLocalSearch(qParam);
+    }
+  }, [qParam]);
+
+  // Active Link Identification
+  const isHomeActive = pathname === '/';
+  const isPromptsActive = pathname === '/prompts' && sortParam !== 'copies';
+  const isCategoriesActive = pathname.startsWith('/categories');
+  const isTopUsedActive = pathname === '/prompts' && sortParam === 'copies';
+
+  const handleSearchSubmit = (e) => {
+    if (e) e.preventDefault();
+    if (localSearch.trim()) {
+      setSearchQuery(localSearch.trim());
+      router.push(`/prompts?q=${encodeURIComponent(localSearch.trim())}`);
+    } else {
+      router.push('/prompts');
+    }
     setMobileMenuOpen(false);
   };
 
-  const handleTopUsedClick = () => {
-    setSortBy('copies');
-    handleNav('prompts');
+  const handleAboutClick = (e) => {
+    if (pathname === '/') {
+      e.preventDefault();
+      const el = document.getElementById('about-section');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+    setMobileMenuOpen(false);
   };
 
   return (
@@ -25,14 +59,15 @@ export const Header = () => {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '72px' }}>
           
           {/* Logo & Configurable Brand Name */}
-          <div
-            onClick={() => handleNav('home')}
+          <Link
+            href="/"
             style={{
               display: 'flex',
               alignItems: 'center',
               gap: '10px',
               cursor: 'pointer',
-              userSelect: 'none'
+              userSelect: 'none',
+              textDecoration: 'none'
             }}
           >
             <div
@@ -57,62 +92,57 @@ export const Header = () => {
                 {siteSettings.siteSubtitle}
               </div>
             </div>
-          </div>
+          </Link>
 
           {/* Desktop Nav Links */}
           <nav style={{ display: 'none', mdDisplay: 'flex', gap: '6px', alignItems: 'center' }} className="desktop-nav">
-            <button
-              onClick={() => handleNav('home')}
-              className={`nav-link ${currentPage === 'home' ? 'active' : ''}`}
+            <Link
+              href="/"
+              className={`nav-link ${isHomeActive ? 'active' : ''}`}
             >
               الرئيسية
-            </button>
-            <button
-              onClick={() => handleNav('prompts')}
-              className={`nav-link ${currentPage === 'prompts' ? 'active' : ''}`}
+            </Link>
+            <Link
+              href="/prompts"
+              className={`nav-link ${isPromptsActive ? 'active' : ''}`}
             >
               البرومبتات
-            </button>
-            <button
-              onClick={() => handleNav('categories')}
-              className={`nav-link ${currentPage === 'categories' ? 'active' : ''}`}
+            </Link>
+            <Link
+              href="/categories"
+              className={`nav-link ${isCategoriesActive ? 'active' : ''}`}
             >
               التصنيفات
-            </button>
-            <button
-              onClick={handleTopUsedClick}
-              className="nav-link"
+            </Link>
+            <Link
+              href="/prompts?sort=copies"
+              className={`nav-link ${isTopUsedActive ? 'active' : ''}`}
               style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
             >
               <Flame size={15} color="#F59E0B" />
               الأكثر استخداماً
-            </button>
-            <button
-              onClick={() => {
-                const el = document.getElementById('about-section');
-                if (el) el.scrollIntoView({ behavior: 'smooth' });
-                else handleNav('home');
-              }}
+            </Link>
+            <Link
+              href="/#about-section"
+              onClick={handleAboutClick}
               className="nav-link"
             >
               عن المنصة
-            </button>
+            </Link>
           </nav>
 
           {/* Actions & Buttons */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             
             {/* Quick Header Search Input */}
-            <div style={{ position: 'relative', display: 'none', lgDisplay: 'block' }} className="desktop-search">
+            <form onSubmit={handleSearchSubmit} style={{ position: 'relative', display: 'none', lgDisplay: 'block' }} className="desktop-search">
               <input
                 type="text"
                 placeholder="ابحث عن برومبت..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                value={localSearch}
+                onChange={(e) => setLocalSearch(e.target.value)}
                 onFocus={() => setSearchFocused(true)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleNav('prompts');
-                }}
+                onBlur={() => setSearchFocused(false)}
                 style={{
                   background: 'var(--bg-card)',
                   border: '1px solid var(--border-color)',
@@ -128,9 +158,9 @@ export const Header = () => {
               <Search
                 size={15}
                 color="var(--text-secondary)"
-                style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)' }}
+                style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
               />
-            </div>
+            </form>
 
             {/* Dark / Light Toggle */}
             <button
@@ -165,15 +195,12 @@ export const Header = () => {
               gap: '10px'
             }}
           >
-            <div style={{ position: 'relative', marginBottom: '4px' }}>
+            <form onSubmit={handleSearchSubmit} style={{ position: 'relative', marginBottom: '4px' }}>
               <input
                 type="text"
                 placeholder="ابحث عن برومبت..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleNav('prompts');
-                }}
+                value={localSearch}
+                onChange={(e) => setLocalSearch(e.target.value)}
                 style={{
                   width: '100%',
                   background: 'var(--bg-card)',
@@ -187,14 +214,15 @@ export const Header = () => {
               <Search
                 size={18}
                 color="var(--text-secondary)"
-                style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)' }}
+                style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
               />
-            </div>
+            </form>
             
-            <button onClick={() => handleNav('home')} className="mobile-nav-item">الرئيسية</button>
-            <button onClick={() => handleNav('prompts')} className="mobile-nav-item">البرومبتات</button>
-            <button onClick={() => handleNav('categories')} className="mobile-nav-item">التصنيفات</button>
-            <button onClick={handleTopUsedClick} className="mobile-nav-item">الأكثر استخداماً 🔥</button>
+            <Link href="/" onClick={() => setMobileMenuOpen(false)} className={`mobile-nav-item ${isHomeActive ? 'active' : ''}`} style={{ textDecoration: 'none' }}>الرئيسية</Link>
+            <Link href="/prompts" onClick={() => setMobileMenuOpen(false)} className={`mobile-nav-item ${isPromptsActive ? 'active' : ''}`} style={{ textDecoration: 'none' }}>البرومبتات</Link>
+            <Link href="/categories" onClick={() => setMobileMenuOpen(false)} className={`mobile-nav-item ${isCategoriesActive ? 'active' : ''}`} style={{ textDecoration: 'none' }}>التصنيفات</Link>
+            <Link href="/prompts?sort=copies" onClick={() => setMobileMenuOpen(false)} className={`mobile-nav-item ${isTopUsedActive ? 'active' : ''}`} style={{ textDecoration: 'none' }}>الأكثر استخداماً 🔥</Link>
+            <Link href="/#about-section" onClick={handleAboutClick} className="mobile-nav-item" style={{ textDecoration: 'none' }}>عن المنصة</Link>
           </div>
         )}
       </div>
@@ -211,6 +239,7 @@ export const Header = () => {
           border-radius: 10px;
           cursor: pointer;
           transition: all 0.2s ease;
+          text-decoration: none;
         }
         .nav-link:hover, .nav-link.active {
           color: var(--text-primary);
@@ -227,6 +256,7 @@ export const Header = () => {
           border-radius: 10px;
           text-align: right;
           cursor: pointer;
+          display: block;
         }
         @media (min-width: 768px) {
           .desktop-nav { display: flex !important; }
