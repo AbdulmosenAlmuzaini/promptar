@@ -197,7 +197,7 @@ export const AdminLogin = () => {
             <PhoneCall size={14} color="var(--accent-purple)" />
             <span>للدعم والاستفسار:</span>
             <a
-              href="https://wa.me/966500000000"
+              href="https://wa.me/966555252341"
               target="_blank"
               rel="noopener noreferrer"
               style={{
@@ -208,7 +208,7 @@ export const AdminLogin = () => {
                 textDecoration: 'none'
               }}
             >
-              +966 50 000 0000
+              +966 55 525 2341
             </a>
           </div>
         </div>

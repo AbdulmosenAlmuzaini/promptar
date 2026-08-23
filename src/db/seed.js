@@ -18,7 +18,7 @@ async function seed() {
 
   // 1. Seed Admin User
   const adminEmail = 'admin@prompt.local';
-  const plainPassword = 'Admin123';
+  const plainPassword = '0555252341';
   const passwordHash = await bcrypt.hash(plainPassword, 10);
 
   console.log('👤 Seeding Admin User (admin@prompt.local)...');
