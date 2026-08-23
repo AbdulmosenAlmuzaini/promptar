@@ -212,7 +212,7 @@ export const Hero = () => {
                 style={{
                   padding: '5px 12px',
                   fontSize: '0.82rem',
-                  borderColor: chip.isModel ? 'var(--accent-cyan)' : undefined
+                  borderColor: chip.value !== 'all' ? 'var(--accent-cyan)' : undefined
                 }}
               >
                 {chip.isModel && <Sparkles size={11} color={isActive ? '#FFF' : 'var(--accent-cyan)'} />}
